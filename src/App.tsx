@@ -1,35 +1,53 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import { Header } from "./components/Header/Header";
+import { TaskForm } from "./components/TaskForm/TaskForm";
+import { Tasks } from "./components/Tasks/Tasks";
 
-function App() {
-  const [count, setCount] = useState(0)
+export interface ITask {
+  id: string;
+  title: string;
+  isCompleted: boolean;
+} 
+
+export function App() {
+  const [tasks, setTasks] = useState<ITask[]>([]);
+
+  function addTask(taskTitle: string){
+    setTasks([
+      ...tasks,
+      {
+        id: crypto.randomUUID(),
+        title: taskTitle,
+        isCompleted: false,
+      }
+    ])
+  }
+
+  function deleteTaskById(taskId: string){
+    const newTasks = tasks.filter((task) => task.id !== taskId);
+    setTasks(newTasks);
+  }
+
+  function toggleTaskCompletedById(taskId: string){
+    const newTasks = tasks.map((task) => {
+      if (task.id === taskId){
+        return (
+          {
+            ...task,
+            isCompleted: !task.isCompleted
+          }
+        )
+      }
+      return task;
+    })
+    setTasks(newTasks);
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div>
+      <Header/>
+      <TaskForm onAddTask={addTask}/>
+      <Tasks tasks={tasks} onDelete={deleteTaskById} onComplete={toggleTaskCompletedById} />
+    </div>
   )
 }
-
-export default App
